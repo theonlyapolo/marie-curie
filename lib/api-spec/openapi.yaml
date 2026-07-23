@@ -3,34 +3,840 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: API da Exposição Interativa Marie Curie
 servers:
   - url: /api
-    description: Base API path
+    description: Caminho base da API
 tags:
   - name: health
-    description: Health operations
+    description: Health check
+  - name: auth
+    description: Autenticação administrativa
+  - name: fotos
+    description: Gestão de fotografias dos visitantes
+  - name: quiz
+    description: Perguntas do quiz
+  - name: curiosidades
+    description: Curiosidades sobre Marie Curie
+  - name: cacapalavras
+    description: Configuração do caça-palavras
+  - name: lab
+    description: Combinações do Mini Laboratório
+  - name: stats
+    description: Estatísticas de acesso aos mini-games
+  - name: config
+    description: Configurações do sistema / telão
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
-          description: Healthy
+          description: Saudável
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ── AUTH ──────────────────────────────────────────────────────────────────
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login administrativo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Login realizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Credenciais inválidas
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logout realizado
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Retorna usuário autenticado
+      responses:
+        "200":
+          description: Usuário autenticado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Não autenticado
+
+  # ── FOTOS ─────────────────────────────────────────────────────────────────
+  /fotos/aprovadas:
+    get:
+      operationId: listFotosAprovadas
+      tags: [fotos]
+      summary: Lista fotos aprovadas para o carrossel público
+      responses:
+        "200":
+          description: Lista de fotos aprovadas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Foto"
+
+  /fotos:
+    get:
+      operationId: listFotos
+      tags: [fotos]
+      summary: Lista todas as fotos (admin)
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pendente, aprovada, rejeitada]
+      responses:
+        "200":
+          description: Lista de fotos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Foto"
+
+    post:
+      operationId: uploadFoto
+      tags: [fotos]
+      summary: Envia uma nova foto do visitante
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FotoInput"
+      responses:
+        "201":
+          description: Foto enviada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Foto"
+
+  /fotos/{id}:
+    patch:
+      operationId: updateFoto
+      tags: [fotos]
+      summary: Aprova, rejeita ou atualiza uma foto (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FotoUpdate"
+      responses:
+        "200":
+          description: Foto atualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Foto"
+        "404":
+          description: Foto não encontrada
+
+    delete:
+      operationId: deleteFoto
+      tags: [fotos]
+      summary: Remove uma foto (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Foto removida
+        "404":
+          description: Foto não encontrada
+
+  # ── QUIZ ──────────────────────────────────────────────────────────────────
+  /quiz/perguntas:
+    get:
+      operationId: getQuizPerguntas
+      tags: [quiz]
+      summary: Retorna 5 perguntas aleatórias para o mini-game
+      responses:
+        "200":
+          description: Perguntas do quiz
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QuizPergunta"
+
+  /quiz/perguntas/todas:
+    get:
+      operationId: listQuizPerguntasTodas
+      tags: [quiz]
+      summary: Lista todas as perguntas (admin)
+      responses:
+        "200":
+          description: Todas as perguntas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QuizPergunta"
+
+    post:
+      operationId: createQuizPergunta
+      tags: [quiz]
+      summary: Cria uma nova pergunta (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuizPerguntaInput"
+      responses:
+        "201":
+          description: Pergunta criada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuizPergunta"
+
+  /quiz/perguntas/todas/{id}:
+    patch:
+      operationId: updateQuizPergunta
+      tags: [quiz]
+      summary: Atualiza uma pergunta (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuizPerguntaUpdate"
+      responses:
+        "200":
+          description: Pergunta atualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuizPergunta"
+        "404":
+          description: Pergunta não encontrada
+
+    delete:
+      operationId: deleteQuizPergunta
+      tags: [quiz]
+      summary: Remove uma pergunta (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Pergunta removida
+        "404":
+          description: Pergunta não encontrada
+
+  # ── CURIOSIDADES ─────────────────────────────────────────────────────────
+  /curiosidades/aleatoria:
+    get:
+      operationId: getCuriosidadeAleatoria
+      tags: [curiosidades]
+      summary: Retorna uma curiosidade aleatória sobre Marie Curie
+      responses:
+        "200":
+          description: Curiosidade aleatória
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Curiosidade"
+
+  /curiosidades:
+    get:
+      operationId: listCuriosidades
+      tags: [curiosidades]
+      summary: Lista todas as curiosidades (admin)
+      responses:
+        "200":
+          description: Lista de curiosidades
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Curiosidade"
+
+    post:
+      operationId: createCuriosidade
+      tags: [curiosidades]
+      summary: Cria uma nova curiosidade (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CuriosidadeInput"
+      responses:
+        "201":
+          description: Curiosidade criada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Curiosidade"
+
+  /curiosidades/{id}:
+    patch:
+      operationId: updateCuriosidade
+      tags: [curiosidades]
+      summary: Atualiza uma curiosidade (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CuriosidadeUpdate"
+      responses:
+        "200":
+          description: Curiosidade atualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Curiosidade"
+        "404":
+          description: Não encontrada
+
+    delete:
+      operationId: deleteCuriosidade
+      tags: [curiosidades]
+      summary: Remove uma curiosidade (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Removida
+        "404":
+          description: Não encontrada
+
+  # ── CAÇA-PALAVRAS ─────────────────────────────────────────────────────────
+  /cacapalavras:
+    get:
+      operationId: getCacaPalavras
+      tags: [cacapalavras]
+      summary: Retorna as palavras do caça-palavras
+      responses:
+        "200":
+          description: Configuração do caça-palavras
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CacaPalavrasConfig"
+
+    put:
+      operationId: updateCacaPalavras
+      tags: [cacapalavras]
+      summary: Atualiza as palavras do caça-palavras (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CacaPalavrasInput"
+      responses:
+        "200":
+          description: Configuração atualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CacaPalavrasConfig"
+
+  # ── MINI LABORATÓRIO ─────────────────────────────────────────────────────
+  /lab/combinacoes:
+    get:
+      operationId: listLabCombinacoes
+      tags: [lab]
+      summary: Lista combinações do Mini Laboratório
+      responses:
+        "200":
+          description: Lista de combinações
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LabCombinacao"
+
+    post:
+      operationId: createLabCombinacao
+      tags: [lab]
+      summary: Cria uma combinação (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LabCombinacaoInput"
+      responses:
+        "201":
+          description: Combinação criada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LabCombinacao"
+
+  /lab/combinacoes/{id}:
+    patch:
+      operationId: updateLabCombinacao
+      tags: [lab]
+      summary: Atualiza uma combinação (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LabCombinacaoUpdate"
+      responses:
+        "200":
+          description: Combinação atualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LabCombinacao"
+        "404":
+          description: Não encontrada
+
+    delete:
+      operationId: deleteLabCombinacao
+      tags: [lab]
+      summary: Remove uma combinação (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Removida
+        "404":
+          description: Não encontrada
+
+  # ── ESTATÍSTICAS ─────────────────────────────────────────────────────────
+  /stats:
+    get:
+      operationId: listStats
+      tags: [stats]
+      summary: Estatísticas de acesso aos mini-games (admin)
+      responses:
+        "200":
+          description: Estatísticas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatsResumo"
+
+    post:
+      operationId: registrarStat
+      tags: [stats]
+      summary: Registra uma jogada em um mini-game
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StatInput"
+      responses:
+        "201":
+          description: Registro salvo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stat"
+
+  # ── CONFIGURAÇÕES ─────────────────────────────────────────────────────────
+  /config:
+    get:
+      operationId: getConfig
+      tags: [config]
+      summary: Retorna configurações do sistema
+      responses:
+        "200":
+          description: Configurações atuais
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SistemaConfig"
+
+    put:
+      operationId: updateConfig
+      tags: [config]
+      summary: Atualiza configurações do sistema (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SistemaConfigInput"
+      responses:
+        "200":
+          description: Configurações atualizadas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SistemaConfig"
+
+  # ── UPLOAD ────────────────────────────────────────────────────────────────
+  /upload:
+    post:
+      operationId: uploadArquivo
+      tags: [fotos]
+      summary: Faz upload de uma imagem (base64)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadInput"
+      responses:
+        "200":
+          description: URL do arquivo salvo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadResult"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    # ── AUTH ────────────────────────────────────────────────────────────────
+    LoginInput:
+      type: object
+      required: [usuario, senha]
+      properties:
+        usuario:
+          type: string
+        senha:
+          type: string
+
+    AuthUser:
+      type: object
+      required: [usuario]
+      properties:
+        usuario:
+          type: string
+
+    # ── FOTO ────────────────────────────────────────────────────────────────
+    Foto:
+      type: object
+      required: [id, urlImagem, miniGame, status, criadaEm]
+      properties:
+        id:
+          type: integer
+        urlImagem:
+          type: string
+        miniGame:
+          type: string
+        nomeVisitante:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pendente, aprovada, rejeitada]
+        criadaEm:
+          type: string
+          format: date-time
+
+    FotoInput:
+      type: object
+      required: [urlImagem, miniGame]
+      properties:
+        urlImagem:
+          type: string
+        miniGame:
+          type: string
+        nomeVisitante:
+          type: string
+
+    FotoUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pendente, aprovada, rejeitada]
+
+    # ── QUIZ ────────────────────────────────────────────────────────────────
+    QuizPergunta:
+      type: object
+      required: [id, pergunta, alternativas, respostaCorreta]
+      properties:
+        id:
+          type: integer
+        pergunta:
+          type: string
+        alternativas:
+          type: array
+          items:
+            type: string
+        respostaCorreta:
+          type: integer
+
+    QuizPerguntaInput:
+      type: object
+      required: [pergunta, alternativas, respostaCorreta]
+      properties:
+        pergunta:
+          type: string
+        alternativas:
+          type: array
+          items:
+            type: string
+        respostaCorreta:
+          type: integer
+
+    QuizPerguntaUpdate:
+      type: object
+      properties:
+        pergunta:
+          type: string
+        alternativas:
+          type: array
+          items:
+            type: string
+        respostaCorreta:
+          type: integer
+
+    # ── CURIOSIDADE ─────────────────────────────────────────────────────────
+    Curiosidade:
+      type: object
+      required: [id, texto]
+      properties:
+        id:
+          type: integer
+        texto:
+          type: string
+
+    CuriosidadeInput:
+      type: object
+      required: [texto]
+      properties:
+        texto:
+          type: string
+
+    CuriosidadeUpdate:
+      type: object
+      properties:
+        texto:
+          type: string
+
+    # ── CAÇA-PALAVRAS ───────────────────────────────────────────────────────
+    CacaPalavrasConfig:
+      type: object
+      required: [palavras]
+      properties:
+        palavras:
+          type: array
+          items:
+            type: string
+
+    CacaPalavrasInput:
+      type: object
+      required: [palavras]
+      properties:
+        palavras:
+          type: array
+          items:
+            type: string
+
+    # ── LABORATÓRIO ─────────────────────────────────────────────────────────
+    LabCombinacao:
+      type: object
+      required: [id, elemento1, elemento2, resultado, tipo, explicacao]
+      properties:
+        id:
+          type: integer
+        elemento1:
+          type: string
+        elemento2:
+          type: string
+        resultado:
+          type: string
+        tipo:
+          type: string
+          enum: [correta, nenhuma, explosao]
+        explicacao:
+          type: string
+
+    LabCombinacaoInput:
+      type: object
+      required: [elemento1, elemento2, resultado, tipo, explicacao]
+      properties:
+        elemento1:
+          type: string
+        elemento2:
+          type: string
+        resultado:
+          type: string
+        tipo:
+          type: string
+          enum: [correta, nenhuma, explosao]
+        explicacao:
+          type: string
+
+    LabCombinacaoUpdate:
+      type: object
+      properties:
+        elemento1:
+          type: string
+        elemento2:
+          type: string
+        resultado:
+          type: string
+        tipo:
+          type: string
+          enum: [correta, nenhuma, explosao]
+        explicacao:
+          type: string
+
+    # ── ESTATÍSTICAS ────────────────────────────────────────────────────────
+    Stat:
+      type: object
+      required: [id, miniGame, jogadaEm]
+      properties:
+        id:
+          type: integer
+        miniGame:
+          type: string
+        jogadaEm:
+          type: string
+          format: date-time
+
+    StatInput:
+      type: object
+      required: [miniGame]
+      properties:
+        miniGame:
+          type: string
+
+    StatsResumo:
+      type: object
+      required: [totalJogadas, porGame, fotosTotal, fotosPendentes, fotosAprovadas]
+      properties:
+        totalJogadas:
+          type: integer
+        porGame:
+          type: array
+          items:
+            $ref: "#/components/schemas/StatPorGame"
+        fotosTotal:
+          type: integer
+        fotosPendentes:
+          type: integer
+        fotosAprovadas:
+          type: integer
+
+    StatPorGame:
+      type: object
+      required: [miniGame, total]
+      properties:
+        miniGame:
+          type: string
+        total:
+          type: integer
+
+    # ── CONFIG ──────────────────────────────────────────────────────────────
+    SistemaConfig:
+      type: object
+      required: [intervaloCarrossel, aprovacaoAutomatica]
+      properties:
+        intervaloCarrossel:
+          type: integer
+          description: Intervalo do carrossel em segundos
+        aprovacaoAutomatica:
+          type: boolean
+          description: Se fotos são aprovadas automaticamente
+
+    SistemaConfigInput:
+      type: object
+      properties:
+        intervaloCarrossel:
+          type: integer
+        aprovacaoAutomatica:
+          type: boolean
+
+    # ── UPLOAD ──────────────────────────────────────────────────────────────
+    UploadInput:
+      type: object
+      required: [dados, mimeType]
+      properties:
+        dados:
+          type: string
+          description: Imagem codificada em base64
+        mimeType:
+          type: string
+
+    UploadResult:
+      type: object
+      required: [url]
+      properties:
+        url:
+          type: string

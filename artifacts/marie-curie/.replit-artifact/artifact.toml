@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Exposição Marie Curie"
+version = "1.0.0"
+id = "artifacts/marie-curie"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 26228
+
+[services.development]
+run = "pnpm --filter @workspace/marie-curie run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/marie-curie", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/marie-curie/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "26228"
+BASE_PATH = "/"
