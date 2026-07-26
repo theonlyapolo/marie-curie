@@ -1,4 +1,5 @@
 import { config } from "dotenv";
+console.log("Schema path:", path.join(__dirname, "./src/schema/index.ts"));
 import { defineConfig } from "drizzle-kit";
 import path from "path";
 
@@ -14,7 +15,7 @@ if (!process.env.DATABASE_URL) {
 }
 
 export default defineConfig({
-  schema: path.join(__dirname, "./src/schema/index.ts"),
+  schema: "./src/schema/**/*.ts",
   dialect: "postgresql",
   dbCredentials: {
     url: process.env.DATABASE_URL,
