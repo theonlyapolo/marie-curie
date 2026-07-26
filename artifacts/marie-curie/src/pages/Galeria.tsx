@@ -64,7 +64,7 @@ export default function Galeria() {
         title: "Foto enviada!", 
         description: "Sua foto foi enviada para o laboratório e logo aparecerá no telão." 
       });
-      setLocation("/telao");
+      setLocation("/");
 
     } catch (error) {
       toast({ 

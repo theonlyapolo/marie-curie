@@ -7,12 +7,11 @@ import { FlaskConical } from "lucide-react";
 export default function Telao() {
   const [_, setLocation] = useLocation();
   const { data: config } = useGetConfig();
-  const { data: fotos, refetch } = useListFotosAprovadas({
-    query: { refetchInterval: 30000 } // Refetch every 30s
+  const { data: fotos } = useListFotosAprovadas({
+    query: { refetchInterval: 30000 },
   });
 
   const [currentIndex, setCurrentIdx] = useState(0);
-
   const intervalSecs = config?.intervaloCarrossel || 5;
 
   useEffect(() => {
@@ -36,68 +35,103 @@ export default function Telao() {
         <p className="text-xl md:text-2xl font-mono text-muted-foreground">
           Aguardando as primeiras descobertas...
         </p>
-        <button onClick={() => setLocation("/")} className="absolute bottom-8 right-8 opacity-10 hover:opacity-100 transition-opacity font-mono text-xs text-primary">Sair do Telão</button>
+        <button onClick={() => setLocation("/")} className="absolute bottom-8 right-8 opacity-10 hover:opacity-100 transition-opacity font-mono text-xs text-primary">
+          Sair do Telão
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full bg-black overflow-hidden relative flex items-center justify-center group">
-      {/* Background ambient light */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center opacity-30">
-         <div className="w-[80vw] h-[80vh] bg-primary/20 rounded-full blur-[150px]" />
+    <div className="min-h-screen w-full bg-black overflow-hidden relative flex flex-col items-center justify-between py-10 px-8 group">
+
+      {/* Ambient glow */}
+      <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+        <div className="w-[70vw] h-[70vh] bg-primary/10 rounded-full blur-[160px]" />
       </div>
 
+      {/* Topo: título */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
+        className="z-10 text-center"
+      >
+        <p className="font-mono text-primary/60 uppercase tracking-[0.3em] text-sm mb-1">
+          Exposição Marie Curie
+        </p>
+        <h1 className="font-serif text-neon text-4xl md:text-5xl lg:text-6xl uppercase tracking-widest">
+          Mulheres na Ciência
+        </h1>
+      </motion.div>
+
+      {/* Centro: foto + nome + expedição */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentFoto.id}
-          initial={{ opacity: 0, scale: 1.05 }}
+          initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 1.5, ease: "easeInOut" }}
-          className="absolute inset-0 z-10 flex flex-col items-center justify-center p-8 md:p-16"
+          exit={{ opacity: 0, scale: 1.02 }}
+          transition={{ duration: 1.2, ease: "easeInOut" }}
+          className="z-10 flex flex-col items-center gap-6 flex-1 justify-center w-full"
         >
-          <div className="relative max-w-6xl w-full h-full flex flex-col justify-center items-center">
-            
-            <div className="relative w-full h-[70vh] flex items-center justify-center">
-              <img 
-                src={currentFoto.urlImagem} 
-                alt="Visitante" 
-                className="max-w-full max-h-full object-contain drop-shadow-[0_0_30px_rgba(57,255,20,0.3)] border border-primary/20 rounded-lg p-2 bg-background/50 backdrop-blur-sm"
-              />
-            </div>
-
-            <motion.div 
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.5, duration: 1 }}
-              className="mt-8 text-center space-y-2 bg-background/80 px-8 py-4 rounded-full border border-primary/30 backdrop-blur-md"
-            >
-              <h2 className="text-3xl md:text-5xl font-serif text-neon">
-                {currentFoto.nomeVisitante || "Cientista Anônimo"}
-              </h2>
-              <p className="font-mono text-lg text-muted-foreground uppercase tracking-widest">
-                Expedição: {currentFoto.miniGame}
-              </p>
-            </motion.div>
+          {/* Foto */}
+          <div className="relative">
+            <div className="absolute -inset-1 rounded-2xl bg-primary/20 blur-xl" />
+            <img
+              src={currentFoto.urlImagem}
+              alt={currentFoto.nomeVisitante || "Visitante"}
+              className="relative max-h-[52vh] max-w-[80vw] object-contain rounded-2xl border border-primary/30 shadow-[0_0_40px_rgba(57,255,20,0.15)]"
+            />
           </div>
+
+          {/* Nome e expedição */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.8 }}
+            className="text-center"
+          >
+            <h2 className="font-serif text-neon text-3xl md:text-4xl lg:text-5xl">
+              {currentFoto.nomeVisitante || "Cientista Anônimo"}
+            </h2>
+            <p className="font-mono text-primary/60 uppercase tracking-[0.25em] text-sm mt-2">
+              Expedição: {currentFoto.miniGame}
+            </p>
+          </motion.div>
         </motion.div>
       </AnimatePresence>
 
-      <button onClick={() => setLocation("/")} className="absolute bottom-8 right-8 z-50 opacity-0 group-hover:opacity-30 hover:!opacity-100 transition-opacity font-mono text-xs text-primary px-4 py-2 border border-primary rounded-md">
-        Sair do Telão
-      </button>
+      {/* Rodapé: citação */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 0.2 }}
+        className="z-10 text-center"
+      >
+        <p className="font-serif text-foreground/50 italic text-xl md:text-2xl tracking-wide">
+          "A ciência pertence a todos."
+        </p>
+      </motion.div>
 
-      {/* Progress bar */}
-      <div className="absolute bottom-0 left-0 h-1 bg-primary/20 w-full z-20">
-        <motion.div 
+      {/* Barra de progresso */}
+      <div className="absolute bottom-0 left-0 h-[3px] bg-primary/10 w-full z-20">
+        <motion.div
           key={currentFoto.id}
           initial={{ width: 0 }}
           animate={{ width: "100%" }}
           transition={{ duration: intervalSecs, ease: "linear" }}
-          className="h-full bg-primary shadow-[0_0_10px_rgba(57,255,20,0.8)]"
+          className="h-full bg-primary shadow-[0_0_8px_rgba(57,255,20,0.8)]"
         />
       </div>
+
+      {/* Botão oculto de saída */}
+      <button
+        onClick={() => setLocation("/")}
+        className="absolute bottom-8 right-8 z-50 opacity-0 group-hover:opacity-30 hover:!opacity-100 transition-opacity font-mono text-xs text-primary px-4 py-2 border border-primary/40 rounded-md"
+      >
+        Sair do Telão
+      </button>
     </div>
   );
 }

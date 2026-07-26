@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { useLogin, useGetMe } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
@@ -30,10 +30,13 @@ export default function Login() {
     }
   });
 
-  if (!isLoadingMe && user) {
-    setLocation("/admin/dashboard");
-    return null;
-  }
+  const redirected = useRef(false);
+  useEffect(() => {
+    if (!isLoadingMe && user && !redirected.current) {
+      redirected.current = true;
+      setLocation("/admin/dashboard");
+    }
+  }, [isLoadingMe, user]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -2,6 +2,7 @@ import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
 import session from "express-session";
+import path from "path";
 import router from "./routes";
 import { logger } from "./lib/logger";
 
@@ -48,6 +49,9 @@ app.use(
     },
   }),
 );
+
+const UPLOADS_DIR = path.join(process.cwd(), "uploads");
+app.use("/uploads", express.static(UPLOADS_DIR, { acceptRanges: false }));
 
 app.use("/api", router);
 
