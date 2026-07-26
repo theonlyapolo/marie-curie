@@ -58,7 +58,7 @@ export default function Telao() {
         className="z-10 text-center"
       >
         <p className="font-mono text-primary/60 uppercase tracking-[0.3em] text-sm mb-1">
-          Exposição Marie Curie
+          Curie Lab: Onde a Ciência Ganha Vida
         </p>
         <h1 className="font-serif text-neon text-4xl md:text-5xl lg:text-6xl uppercase tracking-widest">
           Mulheres na Ciência

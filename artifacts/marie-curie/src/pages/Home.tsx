@@ -28,9 +28,9 @@ export default function Home() {
         >
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-primary/20 blur-[50px] rounded-full" />
           <h1 className="text-5xl md:text-7xl font-serif font-bold text-foreground text-neon relative z-10 uppercase tracking-widest">
-            Exposição
+            Bem vindos ao <br />
             <br />
-            <span className="text-primary text-6xl md:text-8xl">Marie Curie</span>
+            <span className="text-primary text-6xl md:text-8xl">Curie Lab</span>
           </h1>
           <p className="text-lg md:text-xl font-mono text-muted-foreground max-w-2xl mx-auto uppercase tracking-widest">
             Descubra a luz invisível que mudou a ciência

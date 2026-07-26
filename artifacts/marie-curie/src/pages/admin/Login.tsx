@@ -50,7 +50,7 @@ export default function Login() {
       <div className="mb-8 flex flex-col items-center text-center z-10">
         <FlaskConical className="w-16 h-16 text-primary mb-4 animate-pulse-neon" />
         <h1 className="text-3xl font-serif text-neon uppercase tracking-widest">Acesso Restrito</h1>
-        <p className="text-muted-foreground font-mono mt-2 text-sm">Painel de Controle da Exposição</p>
+        <p className="text-muted-foreground font-mono mt-2 text-sm">Painel de Controle do Laboratório</p>
       </div>
 
       <Card className="w-full max-w-md z-10 border-primary/20 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
@@ -93,7 +93,7 @@ export default function Login() {
       </Card>
       
       <Button variant="ghost" className="mt-8 z-10 text-muted-foreground" onClick={() => setLocation("/")}>
-        Voltar à Exposição
+        Voltar ao Laboratório
       </Button>
     </div>
   );

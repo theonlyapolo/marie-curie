@@ -28,7 +28,7 @@ function NotFound() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground font-mono">
       <h1 className="text-4xl text-neon mb-4">404</h1>
       <p>Elemento não encontrado no laboratório.</p>
-      <a href="/" className="mt-8 text-primary underline hover:text-primary/80">Voltar à Exposição</a>
+      <a href="/" className="mt-8 text-primary underline hover:text-primary/80">Voltar ao Laboratório</a>
     </div>
   );
 }

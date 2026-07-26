@@ -1,6 +1,6 @@
 kind = "web"
 previewPath = "/"
-title = "Exposição Marie Curie"
+title = "Curie Lab: Onde a Ciência Ganha Vida"
 version = "1.0.0"
 id = "artifacts/marie-curie"
 router = "path"
