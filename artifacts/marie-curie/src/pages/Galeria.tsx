@@ -43,12 +43,13 @@ export default function Galeria() {
     if (!preview || !file) return;
 
     try {
-      // 1. Upload base64
+      const base64 = preview.split(",")[1];
+
       const result = await uploadArquivo.mutateAsync({
         data: {
-          dados: preview,
-          mimeType: file.type
-        }
+          dados: base64,
+          mimeType: file.type,
+        },
       });
 
       // 2. Register foto

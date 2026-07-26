@@ -125,6 +125,7 @@ router.post("/upload", async (req, res): Promise<void> => {
   const filename = `foto_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
   const filepath = path.join(UPLOADS_DIR, filename);
 
+  console.log(dados.substring(0, 50));
   const buffer = Buffer.from(dados, "base64");
   if (buffer.length > 10 * 1024 * 1024) {
     res.status(400).json({ error: "Imagem muito grande (máx 10MB)" });

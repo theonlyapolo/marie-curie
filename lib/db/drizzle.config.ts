@@ -1,12 +1,17 @@
 import { config } from "dotenv";
-console.log("Schema path:", path.join(__dirname, "./src/schema/index.ts"));
 import { defineConfig } from "drizzle-kit";
 import path from "path";
+import { fileURLToPath } from "url";
 
-// Carrega o .env da raiz do projeto
-config({
-  path: path.resolve(process.cwd(), ".env"),
-});
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const envPath = path.resolve(__dirname, "../../.env");
+
+console.log("CWD =", process.cwd());
+console.log("ENV =", envPath);
+
+config({ path: envPath });
 
 console.log("DATABASE_URL =", process.env.DATABASE_URL);
 
