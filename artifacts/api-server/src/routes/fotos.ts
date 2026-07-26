@@ -134,7 +134,7 @@ router.post("/upload", async (req, res): Promise<void> => {
   fs.writeFileSync(filepath, buffer);
   req.log.info({ filename }, "Upload salvo");
 
-  res.json({ url: `/api/uploads/${filename}` });
+  res.json({ url: `/uploads/${filename}` });
 });
 
 // Servir arquivos de upload

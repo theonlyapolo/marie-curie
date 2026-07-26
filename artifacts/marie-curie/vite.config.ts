@@ -72,6 +72,16 @@ export default defineConfig({
     fs: {
       strict: true,
     },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: false,
+      },
+      '/uploads': {
+        target: 'http://localhost:8080',
+        changeOrigin: false,
+      },
+    },
   },
   preview: {
     port,
