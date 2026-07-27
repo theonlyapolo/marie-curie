@@ -36,7 +36,7 @@ const sessionSecret = process.env.SESSION_SECRET;
 if (!sessionSecret) {
   throw new Error("SESSION_SECRET must be set");
 }
-
+app.set("trust proxy", 1);
 app.use(
   session({
     secret: sessionSecret,
@@ -44,12 +44,12 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      sameSite: "lax",
-      maxAge: 8 * 60 * 60 * 1000, // 8 horas
+      secure: true,
+      sameSite: "none",
+      maxAge: 8 * 60 * 60 * 1000,
     },
   }),
 );
-
 const UPLOADS_DIR = path.join(process.cwd(), "uploads");
 app.use("/uploads", express.static(UPLOADS_DIR, { acceptRanges: false }));
 
