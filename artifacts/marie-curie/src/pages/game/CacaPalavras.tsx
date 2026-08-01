@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-const gridRef = useRef<HTMLDivElement>(null);
 import { useLocation } from "wouter";
 import { useGetCacaPalavras } from "@workspace/api-client-react";
 import { PublicLayout } from "@/components/layout/PublicLayout";
@@ -63,6 +62,7 @@ function generateGrid(words: string[]) {
 }
 
 export default function CacaPalavras() {
+  const gridRef = useRef<HTMLDivElement>(null);
   const [_, setLocation] = useLocation();
   const { data: config, isLoading, isError } = useGetCacaPalavras({
     query: { refetchOnWindowFocus: false }
