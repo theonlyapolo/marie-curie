@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+const gridRef = useRef<HTMLDivElement>(null);
 import { useLocation } from "wouter";
 import { useGetCacaPalavras } from "@workspace/api-client-react";
 import { PublicLayout } from "@/components/layout/PublicLayout";
@@ -83,34 +84,55 @@ export default function CacaPalavras() {
   const handlePointerDown = (r: number, c: number) => {
     setIsDragging(true);
     setSelectedCells([[r, c]]);
-  };
+};
 
-  const handlePointerEnter = (r: number, c: number) => {
-    if (isDragging) {
-      const start = selectedCells[0];
-      const end = [r, c];
-      
-      // Determine if straight line
-      const dr = end[0] - start[0];
-      const dc = end[1] - start[1];
-      const dist = Math.max(Math.abs(dr), Math.abs(dc));
-      
-      if (dist === 0) return;
-      
-      const stepR = dr === 0 ? 0 : dr / Math.abs(dr);
-      const stepC = dc === 0 ? 0 : dc / Math.abs(dc);
-      
-      // Only allow straight or exact diagonal lines
-      if (Math.abs(dr) !== Math.abs(dc) && dr !== 0 && dc !== 0) return;
-      
-      const newSelection = [];
-      for (let i = 0; i <= dist; i++) {
-        newSelection.push([start[0] + i * stepR, start[1] + i * stepC]);
-      }
-      setSelectedCells(newSelection);
-    }
-  };
+  const updateSelection = (r: number, c: number) => {
+  if (!isDragging || selectedCells.length === 0) return;
 
+  const start = selectedCells[0];
+  const end = [r, c];
+
+  const dr = end[0] - start[0];
+  const dc = end[1] - start[1];
+
+  const dist = Math.max(Math.abs(dr), Math.abs(dc));
+
+  if (dist === 0) return;
+
+  const stepR = dr === 0 ? 0 : dr / Math.abs(dr);
+  const stepC = dc === 0 ? 0 : dc / Math.abs(dc);
+
+  if (Math.abs(dr) !== Math.abs(dc) && dr !== 0 && dc !== 0) return;
+
+  const cells = [];
+
+  for (let i = 0; i <= dist; i++) {
+    cells.push([
+      start[0] + stepR * i,
+      start[1] + stepC * i,
+    ]);
+  }
+
+  setSelectedCells(cells);
+};
+
+const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+  if (!isDragging) return;
+
+  const element = document.elementFromPoint(
+    e.clientX,
+    e.clientY
+  ) as HTMLElement | null;
+
+  if (!element) return;
+
+  const row = element.dataset.row;
+  const col = element.dataset.col;
+
+  if (row === undefined || col === undefined) return;
+
+  updateSelection(Number(row), Number(col));
+};
   const handlePointerUp = () => {
     setIsDragging(false);
     
@@ -163,11 +185,14 @@ export default function CacaPalavras() {
       <div className="w-full max-w-4xl mx-auto flex flex-col md:flex-row gap-8 pt-8" onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp}>
         
         <div className="flex-1 bg-card border border-border p-4 rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.5)]">
-          <div 
-            className="grid gap-1 touch-none"
-            style={{ 
-              gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`,
-            }}
+          <div
+    ref={gridRef}
+    onPointerMove={handlePointerMove}
+    className="grid gap-1 touch-none"
+            style={{
+    touchAction: "none",
+    gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0,1fr))`
+}}
           >
             {gridData.grid.map((row, r) => 
               row.map((letter, c) => {
@@ -182,7 +207,8 @@ export default function CacaPalavras() {
                   <div
                     key={`${r}-${c}`}
                     onPointerDown={() => handlePointerDown(r, c)}
-                    onPointerEnter={() => handlePointerEnter(r, c)}
+                    data-row={r}
+                    data-col={c}
                     className={`aspect-square flex items-center justify-center font-mono font-bold text-lg md:text-xl cursor-pointer border rounded-sm transition-colors duration-150 select-none ${bgClass}`}
                   >
                     {letter}
